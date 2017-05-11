@@ -1,5 +1,5 @@
 # LearnOpenGL
-		TOPICS 
+## TOPICS 
 1. Getting Started
      1. Hello Window.
      2. Hello Trinanle.
