@@ -3,15 +3,15 @@
         "configurations": [
             {
                 "name": "(lldb) Launch",
-                "preLaunchTask": "opengl-app",
+                "preLaunchTask": "build opengl-app",
                 "type": "cppdbg",
                 "request": "launch",
                 "program": "${workspaceRoot}/build/opengl-app",
                 "args": [],
                 "stopAtEntry": false,
-                "cwd": "${workspaceRoot}",
+                "cwd": "${workspaceRoot}/build/",
                 "environment": [],
-                "externalConsole": true,
+                "externalConsole": false,
                 "MIMode": "lldb"
             }
         ]
