@@ -3,7 +3,7 @@
         "configurations": [
             {
                 "name": "(lldb) Launch",
-                "preLaunchTask": "build opengl-app",
+              //  "preLaunchTask": "build opengl-app",
                 "type": "cppdbg",
                 "request": "launch",
                 "program": "${workspaceRoot}/build/opengl-app",

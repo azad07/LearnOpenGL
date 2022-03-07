@@ -8,6 +8,8 @@
                 "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/8.1.0/include",
                 "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include",
                 "/usr/include",
+                "/usr/local/Cellar/glew/2.2.0_1/include/**",
+                "/usr/local/Cellar/glfw/3.3.6/include/GLFW/**",
                 "${workspaceRoot}"
             ],
             "defines": [],
@@ -19,6 +21,8 @@
                     "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/8.1.0/include",
                     "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include",
                     "/usr/include",
+                    "/usr/local/Cellar/glew/2.2.0_1/include/**",
+                    "/usr/local/Cellar/glfw/3.3.6/include/GLFW/**",
                     "${workspaceRoot}",
                     "${workspaceRoot}/include"
                 ],
@@ -28,7 +32,10 @@
             "macFrameworkPath": [
                 "/System/Library/Frameworks",
                 "/Library/Frameworks"
-            ]
+            ],
+            "compilerPath": "/usr/bin/clang",
+            "cStandard": "c17",
+            "cppStandard": "c++98"
         },
         {
             "name": "Linux",
@@ -47,7 +54,10 @@
                 ],
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": ""
-            }
+            },
+            "compilerPath": "/usr/bin/clang",
+            "cStandard": "c17",
+            "cppStandard": "c++98"
         },
         {
             "name": "Win32",
@@ -67,8 +77,11 @@
                 ],
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": ""
-            }
+            },
+            "compilerPath": "/usr/bin/clang",
+            "cStandard": "c17",
+            "cppStandard": "c++98"
         }
     ],
-    "version": 3
+    "version": 4
 }
