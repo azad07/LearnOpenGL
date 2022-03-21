@@ -1,4 +1,4 @@
-#if 1
+#if 0
 
 #include <fstream>
 #include <iostream>
@@ -37,7 +37,7 @@ void framebuffer_size_callback(GLFWwindow *win, int width, int height)
  * @param win  window handle. 
  */
 void processInput(GLFWwindow *win){
-    if(glfwGetKey(win, GLFW_KEY_ESCAPE) == GLFW_PRESS){
+    if(glfwGetKey(win, GLFW_KEY_ENTER) == GLFW_PRESS){
         glfwSetWindowShouldClose(win, true);
     }
 }
