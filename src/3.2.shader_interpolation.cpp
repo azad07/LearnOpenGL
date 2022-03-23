@@ -1,4 +1,4 @@
-#if 0
+#if 1
 
 #include <fstream>
 #include <iostream>
@@ -25,21 +25,20 @@ unsigned int createShaderProgram(const char *vertexShaderSource, const char *fra
 
 const char *vertexShaderSource = "#version 330 core\n"
                                  "layout (location = 0) in vec3 aPos;\n"
-                                 "out vec4 vertexColor;\n"
+                                 "layout (location = 1) in vec3 aColor;\n"
+                                 "out vec3 vertexColor;\n"
                                  "void main()\n"
                                  "{\n"
                                  "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-                                 "   vertexColor = vec4(1.0, 0.0, 0.0, 1.0);\n"
+                                 "   vertexColor = aColor;\n"
                                  "}\0";
 const char *fragmentShaderSource = "#version 330 core\n"
                                    "out vec4 FragColor;\n"
-                                   "in vec4 vertexColor;\n"
-                                   "uniform vec4 ourColor;\n"
+                                   "in vec3 vertexColor;\n"
                                    "void main()\n"
                                    "{\n"
-                                   "   FragColor = ourColor;\n"
+                                   "   FragColor = vec4(vertexColor, 1.0f);\n"
                                    "}\n\0";
-
 
 int main()
 {
@@ -87,15 +86,13 @@ int main()
 
     // set up vertex data (and buffers) and configure vertex attributes.
     float vertices[] = {
-        0.0f, 0.5f, 0.0f,   // top-right
-        -0.5f, -0.5f, 0.0f,  // bottom-right
-        0.5f, -0.5f, 0.0f, // bottom-left
-        -0.5f, 0.5f, 0.0f   // top-left
+        0.0f, 0.5f, 0.0f,   1.0f, 0.0f, 0.0f,  // top-right
+        -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,// bottom-right
+        0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 1.0f,// bottom-left
     };
     unsigned int indicesFirst[] = {
         0, 1, 2, // first triangle
     };
-
 
     unsigned int vbo; // vertex buffer object
     unsigned int vao; // vertex array object
@@ -116,8 +113,14 @@ int main()
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicesFirst), indicesFirst, GL_STATIC_DRAW);
 
     // 1. then set the vertex attributes pointers
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+    // position attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(0);
+    // color attribute
+    unsigned int aColorAtrributeLocation = glGetAttribLocation(shaderProgram, "aColor");
+    glVertexAttribPointer(aColorAtrributeLocation, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void*)(3*sizeof(float)));
+    glEnableVertexAttribArray(aColorAtrributeLocation);
+    
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
@@ -125,12 +128,6 @@ int main()
     // uncomment this call to draw in wireframe polygons.
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
-    if(vertexColorLocation == -1)
-    {
-        std::cout<<"ERROR:: vertexColorLocation not found in fragment shader"<<std::endl;
-    }
-    
     // render loop
     while (!glfwWindowShouldClose(window))
     {
@@ -143,12 +140,6 @@ int main()
 
         // draw a triangle
         glUseProgram(shaderProgram);
-        // lets do some nice color animation here.
-        float timeValue = glfwGetTime();
-        float greenValue = (sin(timeValue)/2.0f) + 0.5f;
-        float redValue = (sin(timeValue)/greenValue) + 0.5f;
-        float blueValue = (sin(timeValue)/redValue) + 0.5f;
-        glUniform4f(vertexColorLocation, redValue, greenValue, blueValue, 1.0f);
         glBindVertexArray(vao);
         glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
 
