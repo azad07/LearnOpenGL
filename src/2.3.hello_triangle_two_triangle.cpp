@@ -1,4 +1,4 @@
-#if 1
+#if 0
 
 #include <fstream>
 #include <iostream>
@@ -7,40 +7,40 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-//TODO: check if glad is really needed??
+// TODO: check if glad is really needed??
 //#include <glad/glad.h>
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
 using namespace std;
 
-//settings.
+// settings.
 const unsigned int DEFAULT_WINDOW_WIDTH = 800;
 const unsigned int DEFAULT_WINDOW_HEIGHT = 600;
 const char *WINDOW_TITLE = "Hellow Triangle";
 
 void framebuffer_size_callback(GLFWwindow *win, int width, int height);
 void processInput(GLFWwindow *win);
-unsigned int createShaderProgram(const char* vertexShaderSource, const char* fragmentShaderSource);
+unsigned int createShaderProgram(const char *vertexShaderSource, const char *fragmentShaderSource);
 
 const char *vertexShaderSource = "#version 330 core\n"
-    "layout (location = 0) in vec3 aPos;\n"
-    "void main()\n"
-    "{\n"
-    "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-    "}\0";
+                                 "layout (location = 0) in vec3 aPos;\n"
+                                 "void main()\n"
+                                 "{\n"
+                                 "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+                                 "}\0";
 const char *fragmentShaderSource = "#version 330 core\n"
-    "out vec4 FragColor;\n"
-    "void main()\n"
-    "{\n"
-    "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-    "}\n\0";
+                                   "out vec4 FragColor;\n"
+                                   "void main()\n"
+                                   "{\n"
+                                   "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+                                   "}\n\0";
 const char *fragmentShaderYellowSource = "#version 330 core\n"
-    "out vec4 FragColor;\n"
-    "void main()\n"
-    "{\n"
-    "   FragColor = vec4(1.0f, 1.0f, 0.0f, 1.0f);\n"
-    "}\n\0";
+                                         "out vec4 FragColor;\n"
+                                         "void main()\n"
+                                         "{\n"
+                                         "   FragColor = vec4(1.0f, 1.0f, 0.0f, 1.0f);\n"
+                                         "}\n\0";
 
 int main()
 {
@@ -74,7 +74,7 @@ int main()
         return -1;
     }
 
-//TODO: check if glad is really needed on macos ??
+// TODO: check if glad is really needed on macos ??
 #if 0
     // glad: load all opengl function pointers.
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -89,21 +89,21 @@ int main()
 
     // set up vertex data (and buffers) and configure vertex attributes.
     float vertices[] = {
-        0.5f, 0.5f, 0.0f,           // top-right
-        0.5f, -0.5f, 0.0f,          // bottom-right
-        -0.5f, -0.5f, 0.0f,         // bottom-left
-        -0.5f, 0.5f, 0.0f           // top-left
-        };
+        0.5f, 0.5f, 0.0f,   // top-right
+        0.5f, -0.5f, 0.0f,  // bottom-right
+        -0.5f, -0.5f, 0.0f, // bottom-left
+        -0.5f, 0.5f, 0.0f   // top-left
+    };
     unsigned int indicesFirst[] = {
-        0, 1, 3,        // first triangle
+        0, 1, 3, // first triangle
     };
     unsigned int indicesSecond[] = {
-        1, 2, 3,        // second triangle
+        1, 2, 3, // second triangle
     };
 
-    unsigned int vbo[2];   // vertex buffer object
-    unsigned int vao[2];   // vertex array object
-    unsigned int ebo[2];   // element buffer object
+    unsigned int vbo[2]; // vertex buffer object
+    unsigned int vao[2]; // vertex array object
+    unsigned int ebo[2]; // element buffer object
     glGenVertexArrays(2, vao);
     glGenBuffers(2, vbo);
     glGenBuffers(2, ebo);
@@ -112,40 +112,39 @@ int main()
     // and then configure vertex attributes.
     glBindVertexArray(vao[0]);
 
-    //0. copy our vertices array in a buffer for openGL to use
+    // 0. copy our vertices array in a buffer for openGL to use
     glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo[0]);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicesFirst), indicesFirst, GL_STATIC_DRAW);
 
-    //1. then set the vertex attributes pointers
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
+    // 1. then set the vertex attributes pointers
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(0);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-
     // for second triangle.
     glBindVertexArray(vao[1]);
 
-    //0. copy our vertices array in a buffer for openGL to use
+    // 0. copy our vertices array in a buffer for openGL to use
     glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo[1]);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicesSecond), indicesSecond, GL_STATIC_DRAW);
 
-    //1. then set the vertex attributes pointers
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
+    // 1. then set the vertex attributes pointers
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(0);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
     // uncomment this call to draw in wireframe polygons.
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     // render loop
     while (!glfwWindowShouldClose(window))
@@ -153,7 +152,7 @@ int main()
         // input
         processInput(window);
 
-        //render
+        // render
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
@@ -162,12 +161,12 @@ int main()
         glBindVertexArray(vao[0]);
         glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
 
-        //second triangle
+        // second triangle
         glUseProgram(shaderProgramYellow);
         glBindVertexArray(vao[1]);
         glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
 
-        //glfw: swap buffers and poll IO events(keys pressed/released, mouse moved etc.)
+        // glfw: swap buffers and poll IO events(keys pressed/released, mouse moved etc.)
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
@@ -179,17 +178,17 @@ int main()
 
 /**
  * @brief Create a Shader Program object
- * 
+ *
  * @param vertexShaderSource    vertex shader source
  * @param fragmentShaderSource  fragment shader source.
  * @return unsigned int         shader program id on success, -1 on fail.
  */
-unsigned int createShaderProgram(const char* vertexShaderSource, const char* fragmentShaderSource)
+unsigned int createShaderProgram(const char *vertexShaderSource, const char *fragmentShaderSource)
 {
-    if(vertexShaderSource == nullptr || fragmentShaderSource == nullptr)
+    if (vertexShaderSource == nullptr || fragmentShaderSource == nullptr)
     {
-        std::cout<<"ERROR:: vertex/fragment shader source is nullptr"<<std::endl;
-        return -1;   // TODO: this is bad
+        std::cout << "ERROR:: vertex/fragment shader source is nullptr" << std::endl;
+        return -1; // TODO: this is bad
     }
     // build and compile our shader program.
     // vertex shader
@@ -241,7 +240,7 @@ unsigned int createShaderProgram(const char* vertexShaderSource, const char* fra
 
 /**
  * @brief whenever the window size changed (by OS or user resize) this callback function executes.
- * 
+ *
  * @param win   window handle
  * @param width widnow width
  * @param height window height
@@ -254,8 +253,8 @@ void framebuffer_size_callback(GLFWwindow *win, int width, int height)
 
 /**
  * @brief process all input.
- * 
- * @param win  window handle. 
+ *
+ * @param win  window handle.
  */
 void processInput(GLFWwindow *win)
 {

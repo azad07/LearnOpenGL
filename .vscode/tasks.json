@@ -20,15 +20,13 @@
             }
         },
         {
-            "label": "run opengl-app",
+            "label": "test opengl-app",
             "type": "shell",
             "group": {
                 "kind": "test",
                 "isDefault": true
             },
-            "osx": {
-                "command": "${workspaceRoot}/build/opengl-app"
-            },
+            "command": "${workspaceRoot}/build/opengl-app"
         }
     ]
 }
