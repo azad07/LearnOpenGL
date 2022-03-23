@@ -1,4 +1,4 @@
-#if 0
+#if 1
 
 #include <fstream>
 #include <iostream>
@@ -131,15 +131,22 @@ int main()
 
     // set up vertex data (and buffers) and configure vertex attributes.
     float vertices[] = {
-        -0.5f, -0.5f, 0.0f,
-        0.5f, -0.5f, 0.0f,
-        0.0f, 0.5f, 0.0f
+        0.5f, 0.5f, 0.0f,           // top-right
+        0.5f, -0.5f, 0.0f,          // bottom-right
+        -0.5f, -0.5f, 0.0f,         // bottom-left
+        -0.5f, 0.5f, 0.0f           // top-left
         };
+    unsigned int indices[] = {
+        0, 1, 3,        // first triangle
+        1, 2, 3,        // second triangle
+    };
 
-    unsigned int vbo; // vertex buffer object
-    unsigned int vao; // vertex array object
+    unsigned int vbo;   // vertex buffer object
+    unsigned int vao;   // vertex array object
+    unsigned int ebo;   // element buffer object
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo);
+    glGenBuffers(1, &ebo);
 
     // bind the vertex array object first, then bind and set vertex buffers,
     // and then configure vertex attributes.
@@ -148,6 +155,10 @@ int main()
     //0. copy our vertices array in a buffer for openGL to use
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
     //1. then set the vertex attributes pointers
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
@@ -170,7 +181,8 @@ int main()
 
         glUseProgram(shaderProgram);
         glBindVertexArray(vao);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        //glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         //glfw: swap buffers and poll IO events(keys pressed/released, mouse moved etc.)
         glfwSwapBuffers(window);
