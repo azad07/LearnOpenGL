@@ -1,4 +1,4 @@
-#if 0
+#if 1
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -39,9 +39,10 @@ const char *fragmentShaderSource = "#version 330 core\n"
                                    "in vec3 ourColor;\n"
                                    "in vec2 TexCoord;\n"
                                    "uniform sampler2D texture1;\n"
+                                   "uniform sampler2D texture2;\n"
                                    "void main()\n"
                                    "{\n"
-                                   "   FragColor = texture(texture1, TexCoord) * vec4(ourColor, 1.0);\n"
+                                   "   FragColor = mix(texture(texture1, TexCoord), texture(texture2, TexCoord), 0.2);\n"
                                    "}\n\0";
 
 int main()
@@ -125,9 +126,11 @@ int main()
     glBindVertexArray(0);
 
     // load and create a texture
-    unsigned int textureID;
-    glGenTextures(1, &textureID);
-    glBindTexture(GL_TEXTURE_2D, textureID);
+    unsigned int textureID1, textureID2;
+
+    // first texture
+    glGenTextures(1, &textureID1);
+    glBindTexture(GL_TEXTURE_2D, textureID1);
     // set the texture wrapping parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -136,6 +139,7 @@ int main()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     // load image, create texture and generate mipmaps
     int width, height, nrChannels;
+    stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis.
     unsigned char *data = stbi_load("/Users/ashishazad/Desktop/LearnVulkan/openGL/LearnOpenGL/LearnOpenGL/resource/textures/container.jpg",
                                     &width, &height, &nrChannels, 0);
 
@@ -150,10 +154,38 @@ int main()
     {
         std::cout << "ERROR:: Failed to load texture." << std::endl;
     }
-    std::cout << "LINE: " << __LINE__ << std::endl;
     stbi_image_free(data);
-    std::cout << "LINE: " << __LINE__ << std::endl;
 
+    // second texture
+    glGenTextures(1, &textureID2);
+    glBindTexture(GL_TEXTURE_2D, textureID2);
+    // set the texture wrapping parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // set texture filtering paramentes
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // load image, create texture and generate mipmaps
+    data = stbi_load("/Users/ashishazad/Desktop/LearnVulkan/openGL/LearnOpenGL/LearnOpenGL/resource/textures/awesomeface.png",
+                                    &width, &height, &nrChannels, 0);
+
+    std::cout << "Width: " << width << " Height: " << height << " nrChannels: " << nrChannels << std::endl;
+    if (data)
+    {
+        //glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else
+    {
+        std::cout << "ERROR:: Failed to load texture." << std::endl;
+    }
+    stbi_image_free(data);
+
+    glUseProgram(shaderProgram);
+    glUniform1i(glGetUniformLocation(shaderProgram, "texture1"), 0);
+    glUniform1i(glGetUniformLocation(shaderProgram, "texture2"), 1);
+ 
     // uncomment this call to draw in wireframe polygons.
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
@@ -167,8 +199,12 @@ int main()
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        // bind texture
-        glBindTexture(GL_TEXTURE_2D, textureID);
+        // bind texture on corresponding texture unit
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, textureID1);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, textureID2);
+
         // draw a triangle
         glUseProgram(shaderProgram);
         glBindVertexArray(vao);
