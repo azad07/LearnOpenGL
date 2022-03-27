@@ -1,21 +1,15 @@
 #if 1
 
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include "stb_image.h"
+
 #include <fstream>
 #include <iostream>
 #include <stdio.h>
 
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-
-//#include "filesystem.h"
-// TODO: do we need this macro for stb_image ??
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-
-// TODO: check if glad is really needed??
-//#include <glad/glad.h>
-#include "glm/glm.hpp"
-#include "glm/gtc/matrix_transform.hpp"
+//#include "glm/glm.hpp"
+//#include "glm/gtc/matrix_transform.hpp"
 
 using namespace std;
 
@@ -52,7 +46,8 @@ const char *fragmentShaderSource = "#version 330 core\n"
 
 int main()
 {
-    // glfw: initialize and configure.
+    // glfw: initialize and configure
+    // ------------------------------
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -60,49 +55,40 @@ int main()
 
 #ifdef __APPLE__
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 #endif
 
-    // glfw window creation.
-    GLFWwindow *window = glfwCreateWindow(DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, WINDOW_TITLE, NULL, NULL);
-    if (window == nullptr)
+    // glfw window creation
+    // --------------------
+    GLFWwindow *window = glfwCreateWindow(DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, "LearnOpenGL", NULL, NULL);
+    if (window == NULL)
     {
-        cout << "Failed to create GLFW window" << endl;
+        std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
         return -1;
     }
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-    glewExperimental = GL_TRUE;
-
-    if (glewInit() != GLEW_OK)
-    {
-        std::cout << "Failed to init GLEW " << std::endl;
-        return -1;
-    }
-
-// TODO: check if glad is really needed on macos ??
-#if 0
-    // glad: load all opengl function pointers.
+    // glad: load all OpenGL function pointers
+    // ---------------------------------------
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
-#endif
 
     unsigned int shaderProgram = createShaderProgram(vertexShaderSource, fragmentShaderSource);
 
-    // set up vertex data (and buffers) and configure vertex attributes.
+    // set up vertex data (and buffer(s)) and configure vertex attributes
+    // ------------------------------------------------------------------
     float vertices[] = {
         // positions          // colors           // texture coords
-         0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // top right
-         0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, // bottom right
-        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // bottom left
-        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  // top left 
+        0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,   // top right
+        0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,  // bottom right
+        -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // bottom left
+        -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f   // top left
     };
-    unsigned int indices[] = {  
+    unsigned int indices[] = {
         0, 1, 3, // first triangle
         1, 2, 3  // second triangle
     };
@@ -129,17 +115,15 @@ int main()
     glEnableVertexAttribArray(0);
     // color attribute
     unsigned int aColorAtrributeLocation = glGetAttribLocation(shaderProgram, "aColor");
-    glVertexAttribPointer(aColorAtrributeLocation, 3, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)(3*sizeof(float)));
-    glEnableVertexAttribArray(aColorAtrributeLocation);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
     // texture coord attribute
-    glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6*sizeof(float)));
-    glEnableVertexAttribArray(3);
-    
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-
-#if 0
     // load and create a texture
     unsigned int textureID;
     glGenTextures(1, &textureID);
@@ -153,10 +137,10 @@ int main()
     // load image, create texture and generate mipmaps
     int width, height, nrChannels;
     unsigned char *data = stbi_load("/Users/ashishazad/Desktop/LearnVulkan/openGL/LearnOpenGL/LearnOpenGL/resource/textures/container.jpg",
-     &width, &height, &nrChannels, 0);
-    
-    std::cout<<"Width: "<<width<<" Height: "<<height<<" nrChannels: "<< nrChannels<<std::endl;
-    if(data)
+                                    &width, &height, &nrChannels, 0);
+
+    std::cout << "Width: " << width << " Height: " << height << " nrChannels: " << nrChannels << std::endl;
+    if (data)
     {
         //glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
@@ -164,32 +148,11 @@ int main()
     }
     else
     {
-        std::cout<<"ERROR:: Failed to load texture."<<std::endl;
+        std::cout << "ERROR:: Failed to load texture." << std::endl;
     }
-    std::cout<<"LINE: "<<__LINE__<<std::endl;
+    std::cout << "LINE: " << __LINE__ << std::endl;
     stbi_image_free(data);
-    std::cout<<"LINE: "<<__LINE__<<std::endl;
-#else
-
-unsigned int texid;
-glGenTextures(1, &texid);
-//glActiveTexture(GL_TEXTURE0);
-glBindTexture(GL_TEXTURE_2D, texid);
-glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-// Black/white checkerboard
-float pixels[] = {
-    0.0f, 0.0f, 0.0f,   1.0f, 1.0f, 1.0f,
-    1.0f, 1.0f, 1.0f,   0.0f, 0.0f, 0.0f
-};
-glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 2, 2, 0, GL_RGB, GL_FLOAT, pixels);
-
-glGenerateMipmap(GL_TEXTURE_2D);
-
-#endif
+    std::cout << "LINE: " << __LINE__ << std::endl;
 
     // uncomment this call to draw in wireframe polygons.
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -205,7 +168,7 @@ glGenerateMipmap(GL_TEXTURE_2D);
         glClear(GL_COLOR_BUFFER_BIT);
 
         // bind texture
-        glBindTexture(GL_TEXTURE_2D, texid);
+        glBindTexture(GL_TEXTURE_2D, textureID);
         // draw a triangle
         glUseProgram(shaderProgram);
         glBindVertexArray(vao);
