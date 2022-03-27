@@ -446,8 +446,10 @@ void mouse_button_callback(GLFWwindow *window, int button, int action, int mods)
     //std::cout << "Button: " << button << " action: " << action << std::endl;
     if (button == 0 || button == 1)
     {
-        if (action)
+        if (action){
             is_mouse_button_pressed = true;
+            firstMouse = true;
+        }
         else
             is_mouse_button_pressed = false;
     }
