@@ -1,4 +1,4 @@
-#if 0
+#if 1
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -29,10 +29,12 @@ const char *vertexShaderSource = "#version 330 core\n"
                                  "layout (location = 2) in vec2 aTexCoord;\n"
                                  "out vec3 ourColor;\n"
                                  "out vec2 TexCoord;\n"
-                                 "uniform mat4 transform;"
+                                 "uniform mat4 model;"
+                                 "uniform mat4 view;"
+                                 "uniform mat4 projection;"
                                  "void main()\n"
                                  "{\n"
-                                 "   gl_Position = transform * vec4(aPos, 1.0);\n"
+                                 "   gl_Position = projection * view * model * vec4(aPos, 1.0);\n"
                                  "   ourColor = aColor;\n"
                                  "   TexCoord = vec2(aTexCoord.x, aTexCoord.y);\n"
                                  "}\0";
@@ -44,7 +46,7 @@ const char *fragmentShaderSource = "#version 330 core\n"
                                    "uniform sampler2D texture2;\n"
                                    "void main()\n"
                                    "{\n"
-                                   "   FragColor = mix(texture(texture1, TexCoord), texture(texture2, TexCoord), 0.2);\n"
+                                   "   FragColor = mix(texture(texture1, TexCoord), texture(texture2, TexCoord), 0.2) * vec4(ourColor, 1.0f);\n"
                                    "}\n\0";
 
 int main()
@@ -207,17 +209,26 @@ int main()
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, textureID2);
 
-        // create transformation
-        glm::mat4 transform = glm::mat4(1.0f);          // make sure to initialize matrix to identity matrix first
-        transform = glm::scale(transform, glm::vec3(0.5f, 0.5f, 0.0f));                         // scale half
-        transform = glm::translate(transform, glm::vec3(0.5f, -0.5f, 0.0f));                    // translate to different position
-        transform = glm::rotate(transform, (float)glfwGetTime(), glm::vec3(0.0, 0.0, 1.0f));    // rotate 
-
         // draw a triangle
         glUseProgram(shaderProgram);
-        // get matrix's location and set matrix
-        unsigned int transformLoc = glGetUniformLocation(shaderProgram, "transform");
-        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
+
+        // create transformations
+        glm::mat4 model         = glm::mat4(1.0f);
+        glm::mat4 view          = glm::mat4(1.0f);
+        glm::mat4 projection    = glm::mat4(1.0f);
+        model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+        projection = glm::perspective(glm::radians(45.0f), (float)DEFAULT_WINDOW_WIDTH / (float)DEFAULT_WINDOW_HEIGHT, 0.1f, 100.f);
+
+        // retrieve matrix uniform locations
+        unsigned int modelLoc = glGetUniformLocation(shaderProgram, "model");
+        unsigned int viewLoc = glGetUniformLocation(shaderProgram, "view");
+        unsigned int projectionLoc = glGetUniformLocation(shaderProgram, "projection");
+
+        // pass them to the shaders
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
+        glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, &projection[0][0]);
 
         glBindVertexArray(vao);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
