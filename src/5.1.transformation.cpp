@@ -1,4 +1,4 @@
-#if 0
+#if 1
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -8,8 +8,9 @@
 #include <iostream>
 #include <stdio.h>
 
-//#include "glm/glm.hpp"
-//#include "glm/gtc/matrix_transform.hpp"
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
 
 using namespace std;
 
@@ -28,9 +29,10 @@ const char *vertexShaderSource = "#version 330 core\n"
                                  "layout (location = 2) in vec2 aTexCoord;\n"
                                  "out vec3 ourColor;\n"
                                  "out vec2 TexCoord;\n"
+                                 "uniform mat4 transform;"
                                  "void main()\n"
                                  "{\n"
-                                 "   gl_Position = vec4(aPos, 1.0);\n"
+                                 "   gl_Position = transform * vec4(aPos, 1.0);\n"
                                  "   ourColor = aColor;\n"
                                  "   TexCoord = vec2(aTexCoord.x, aTexCoord.y);\n"
                                  "}\0";
@@ -205,8 +207,18 @@ int main()
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, textureID2);
 
+        // create transformation
+        glm::mat4 transform = glm::mat4(1.0f);          // make sure to initialize matrix to identity matrix first
+        transform = glm::scale(transform, glm::vec3(0.5f, 0.5f, 0.0f));                         // scale half
+        transform = glm::translate(transform, glm::vec3(0.5f, -0.5f, 0.0f));                    // translate to different position
+        transform = glm::rotate(transform, (float)glfwGetTime(), glm::vec3(0.0, 0.0, 1.0f));    // rotate 
+
         // draw a triangle
         glUseProgram(shaderProgram);
+        // get matrix's location and set matrix
+        unsigned int transformLoc = glGetUniformLocation(shaderProgram, "transform");
+        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
+
         glBindVertexArray(vao);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
