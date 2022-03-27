@@ -1,4 +1,4 @@
-#if 0
+#if 1
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -41,7 +41,7 @@ const char *fragmentShaderSource = "#version 330 core\n"
                                    "uniform sampler2D texture1;\n"
                                    "void main()\n"
                                    "{\n"
-                                   "   FragColor = texture(texture1, TexCoord);\n"
+                                   "   FragColor = texture(texture1, TexCoord) * vec4(ourColor, 1.0);\n"
                                    "}\n\0";
 
 int main()
