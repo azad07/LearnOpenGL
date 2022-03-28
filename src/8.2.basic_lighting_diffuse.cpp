@@ -1,4 +1,4 @@
-#if 0
+#if 1
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -40,22 +40,37 @@ float lastFrame = 0.0f;
 // lighting
 glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
-const char *colorVertexShaderSource = "#version 330 core\n"
+const char *basicLightingVertexShaderSource = "#version 330 core\n"
                                  "layout (location = 0) in vec3 aPos;\n"
+                                 "layout (location = 1) in vec3 aNormal;\n"
                                  "uniform mat4 model;"
                                  "uniform mat4 view;"
                                  "uniform mat4 projection;"
+                                 "out vec3 FragPos;\n"
+                                 "out vec3 Normal;\n "
                                  "void main()\n"
                                  "{\n"
-                                 "   gl_Position = projection * view * model * vec4(aPos, 1.0);\n"
+                                 "   FragPos = vec3(model * vec4(aPos, 1.0));\n"
+                                 "   Normal = aNormal;\n"
+                                 "   gl_Position = projection * view * vec4(FragPos, 1.0);\n"
                                  "}\0";
-const char *colorFragmentShaderSource = "#version 330 core\n"
+const char *basicLightingFragmentShaderSource = "#version 330 core\n"
                                    "out vec4 FragColor;\n"
+                                   "in vec3 FragPos;\n"
+                                   "in vec3 Normal;\n"
+                                   "uniform vec3 lightPos;\n"
                                    "uniform vec3 objectColor;\n"
                                    "uniform vec3 lightColor;\n"
                                    "void main()\n"
                                    "{\n"
-                                   "   FragColor = vec4(lightColor * objectColor, 1.0);\n"
+                                   "    float ambientStrength = 0.1;\n"
+                                   "    vec3 ambient = ambientStrength * lightColor; \n"
+                                   "    vec3 norm = normalize(Normal);\n"
+                                   "    vec3 lightDir = normalize(lightPos - FragPos);\n"
+                                   "    float diff = max(dot(norm, lightDir), 0.0);\n"
+                                   "    vec3 diffuse = diff * lightColor;\n"
+                                   "    vec3 result = (ambient + diffuse) * objectColor;\n"
+                                   "    FragColor = vec4(result, 1.0);\n"
                                    "}\n\0";
 const char *lightCubeVertexShaderSource = "#version 330 core\n"
                                  "layout (location = 0) in vec3 aPos;\n"
@@ -115,57 +130,58 @@ int main()
     // configure global opengl state
     glEnable(GL_DEPTH_TEST);
 
-    unsigned int lightingShaderProgram = createShaderProgram(colorVertexShaderSource, colorFragmentShaderSource);
+    //unsigned int lightingShaderProgram = createShaderProgram(colorVertexShaderSource, colorFragmentShaderSource);
+    unsigned int lightingShaderProgram = createShaderProgram(basicLightingVertexShaderSource, basicLightingFragmentShaderSource);
     unsigned int lightCubeShaderProgram = createShaderProgram(lightCubeVertexShaderSource, lightCubeFragmentShaderSource);
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
     float vertices[] = {
-        -0.5f, -0.5f, -0.5f, 
-         0.5f, -0.5f, -0.5f,  
-         0.5f,  0.5f, -0.5f,  
-         0.5f,  0.5f, -0.5f,  
-        -0.5f,  0.5f, -0.5f, 
-        -0.5f, -0.5f, -0.5f, 
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+         0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
 
-        -0.5f, -0.5f,  0.5f, 
-         0.5f, -0.5f,  0.5f,  
-         0.5f,  0.5f,  0.5f,  
-         0.5f,  0.5f,  0.5f,  
-        -0.5f,  0.5f,  0.5f, 
-        -0.5f, -0.5f,  0.5f, 
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+         0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
 
-        -0.5f,  0.5f,  0.5f, 
-        -0.5f,  0.5f, -0.5f, 
-        -0.5f, -0.5f, -0.5f, 
-        -0.5f, -0.5f, -0.5f, 
-        -0.5f, -0.5f,  0.5f, 
-        -0.5f,  0.5f,  0.5f, 
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
 
-         0.5f,  0.5f,  0.5f,  
-         0.5f,  0.5f, -0.5f,  
-         0.5f, -0.5f, -0.5f,  
-         0.5f, -0.5f, -0.5f,  
-         0.5f, -0.5f,  0.5f,  
-         0.5f,  0.5f,  0.5f,  
+         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+         0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
 
-        -0.5f, -0.5f, -0.5f, 
-         0.5f, -0.5f, -0.5f,  
-         0.5f, -0.5f,  0.5f,  
-         0.5f, -0.5f,  0.5f,  
-        -0.5f, -0.5f,  0.5f, 
-        -0.5f, -0.5f, -0.5f, 
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
 
-        -0.5f,  0.5f, -0.5f, 
-         0.5f,  0.5f, -0.5f,  
-         0.5f,  0.5f,  0.5f,  
-         0.5f,  0.5f,  0.5f,  
-        -0.5f,  0.5f,  0.5f, 
-        -0.5f,  0.5f, -0.5f, 
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
     };
 
-    unsigned int VBO; // vertex buffer object
-    unsigned int cubeVAO; // vertex array object
+    // first, configure the cube's VAO (and VBO)
+    unsigned int VBO, cubeVAO;
     glGenVertexArrays(1, &cubeVAO);
     glGenBuffers(1, &VBO);
 
@@ -175,19 +191,23 @@ int main()
     glBindVertexArray(cubeVAO);
 
     // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+    // normal attribute
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
 
     // second, configure the light's VAO (VBO stays the same; the vertices are the same for the light object which is also a 3D cube)
     unsigned int lightCubeVAO;
     glGenVertexArrays(1, &lightCubeVAO);
     glBindVertexArray(lightCubeVAO);
 
-    // we only need to bind to the VBO (to link it with glVertexAttribPointer), no need to fill it; the VBO's data already contains all we need (it's already bound, but we do it again for educational purposes)
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    // note that we update the lamp's position attribute's stride to reflect the updated buffer data
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+    
 
     // uncomment this call to draw in wireframe polygons.
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -212,6 +232,7 @@ int main()
 
         glUniform3f(glGetUniformLocation(lightingShaderProgram, "objectColor"), 1.0f, 0.5f, 0.31f);
         glUniform3f(glGetUniformLocation(lightingShaderProgram, "lightColor"), 1.0f, 1.0f, 1.0f);
+        glUniform3f(glGetUniformLocation(lightingShaderProgram, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
 
         // view/projection transformation
         glm::mat4 view = camera.GetViewMatrix();
